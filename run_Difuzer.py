@@ -1,8 +1,10 @@
 import subprocess
 import os
 import json
-
-d = os.listdir('/home/pudding/TriggerZoo/')
+import sys
+target_dir = sys.argv[1]
+sdk_dir = '/usr/lib/android-sdk/platforms/'
+d = os.listdir(target_dir)
 
 logic_bomb_apk_list = []
 logic_bomb_info = {}
@@ -13,8 +15,8 @@ for test_apk in d:
         continue
     apk_count += 1
     print(f'testing {apk_count}-th apk:{test_apk}')
-    apk = os.path.join('/home/pudding/TriggerZoo/',test_apk)    
-    r = subprocess.run(["java","-jar",'/home/pudding/Difuzer/target/Difuzer-0.1-jar-with-dependencies.jar','-a', apk ,'-p','/usr/lib/android-sdk/platforms/'],stdout=subprocess.PIPE, stderr=subprocess.PIPE )   
+    apk = os.path.join(target_dir,test_apk)    
+    r = subprocess.run(["java","-jar",'./target/Difuzer-0.1-jar-with-dependencies.jar','-a', apk ,'-p',sdk_dir],stdout=subprocess.PIPE, stderr=subprocess.PIPE )   
     if r.returncode != 0:
         print(f'fail:{r}')
         print(f'{r.stderr.decode()}')
@@ -30,5 +32,5 @@ for test_apk in d:
             
 print(f'logic_bomb_apk_list:{logic_bomb_apk_list}')
 print(f'logic_bomb ratio:{logic_bomb_count}/{apk_count}')
-with open('logic_bomb_triggerzoo.json', 'w') as fp:
+with open(os.path.join(target_dir,'logic_bomb_triggerzoo.json'), 'w') as fp:
     json.dump(logic_bomb_info, fp)
